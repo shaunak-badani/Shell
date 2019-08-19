@@ -7,7 +7,7 @@ int main() {
     char command[10000];
     gets(command);
     while(strcmp(command, "quit") != 0) {
-        printf("%s\n", command);
+        parse_command(command);
         pretty_print();
         gets(command);
     }

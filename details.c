@@ -52,10 +52,26 @@ void initialize_details(){
 
     char* sysname = strtok(hostname_file, "\n");
     strcpy(system_name, sysname);
+
+    //setting home as current directory
+    char current_dir[PATH_MAX];
+    getcwd(current_dir, sizeof(current_dir));
+    char* folder_name = strtok(current_dir, "/");
+    int i = 0;
+    while(folder_name != NULL){
+        if(folder_name != NULL) {
+            strcpy(CWD[i], folder_name);
+            strcpy(ENV_HOME[i], folder_name);
+        }
+        i++;
+        folder_name = strtok(NULL, "/");
+    }
+    size_of_folder_dirs = i;
+    home_dirs = i;
 }
 
 
 // Function to print the prompt in the format required
 void pretty_print() {
-    printf("<%s@%s:~>", username, system_name);
+    printf("<%s@%s:%s>", username, system_name, display_directory());
 }

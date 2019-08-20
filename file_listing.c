@@ -50,7 +50,7 @@ void list_flag_handler(char flags[][50], int size_of_flags) {
                 return;
             } 
             for(int j = 1 ; j < len ; j++) {
-                    switch(flags[i][j]) {
+                switch(flags[i][j]) {
                     case 'a':
                         mode += 1;
                         break;
@@ -58,7 +58,7 @@ void list_flag_handler(char flags[][50], int size_of_flags) {
                         mode += 2;
                         break;
                     default:
-                        printf("Unrecognized argument : %c \n", flags[j][0]);
+                        printf("Unrecognized argument : %c \n", flags[i][j]);
                         break;
                 }
             }

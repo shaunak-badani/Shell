@@ -14,6 +14,14 @@ void print_cwd() {
     }
 }
 
+// function to handle echo
+void echo_to_screen(char flags[][50], int size_of_flags) {
+    for(int i = 0 ; i < size_of_flags ; i++) {
+        printf("%s ", flags[i]);
+    }
+    printf("\n");
+}
+
 void change_directory(char flags[][50], int size_of_flags) {
     char current_dir[PATH_MAX]; 
     getcwd(current_dir, sizeof(current_dir));

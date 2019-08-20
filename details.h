@@ -29,6 +29,7 @@ char* get_name(int id, bool forUser);
 
 // functions for built in commands
 void print_cwd();
+void echo_to_screen(char flags[][50], int size_of_flags);
 void change_directory(char flags[][50], int size_of_flags);
 
 //file listing

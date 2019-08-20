@@ -26,6 +26,7 @@ void initialize_details(){
         file_line = strtok(NULL, "\n");
     }
 
+    memset(username, '\0', 30*sizeof(char));
     char* user = (char*)malloc(sizeof(char) * 1000);
     char* temp = (char*)malloc(sizeof(char) * 1000);
     char* uid = (char*)malloc(sizeof(char) * 100);

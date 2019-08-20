@@ -98,4 +98,10 @@ void parse_command(char *comm){
     else if(strcmp(main_comm, "ls") == 0) {
         list_flag_handler(flags, i);
     }
+    else if(strcmp(main_comm, "echo") == 0) {
+        echo_to_screen(flags, i);
+    }
+    else {
+        printf("Please enter a valid command.");
+    }
 }

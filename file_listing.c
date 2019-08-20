@@ -19,6 +19,7 @@ void list_flag_handler(char flags[][50], int size_of_flags) {
         return;
     }
     int mode = 0;
+    // printf("size of flags : %d\n", size_of_flags);
     if(size_of_flags == 1) {
         if(flags[0][0] == '-') {
             int len = strlen(flags[0]);
@@ -42,24 +43,23 @@ void list_flag_handler(char flags[][50], int size_of_flags) {
         }
     }
     else if(size_of_flags > 1) {
-        for(int i = 1; i < size_of_flags ; i++) {
+        for(int i = 0; i < size_of_flags ; i++) {
+            int len = strlen(flags[i]);
             if(flags[i][0] != '-') {
-                printf("Please precede your flags with a '-'.\n Quitting \n");
-            }
-            else {
-                int len = strlen(flags[i]);
-                for(int j = 1 ; j < len ; j++) {
-                        switch(flags[j][0]) {
-                        case 'a':
-                            mode += 1;
-                            break;
-                        case 'l':
-                            mode += 2;
-                            break;
-                        default:
-                            printf("Unrecognized argument : %c \n", flags[j][0]);
-                            break;
-                    }
+                printf("Please proceed your flags with -. Aborting\n");
+                return;
+            } 
+            for(int j = 1 ; j < len ; j++) {
+                    switch(flags[i][j]) {
+                    case 'a':
+                        mode += 1;
+                        break;
+                    case 'l':
+                        mode += 2;
+                        break;
+                    default:
+                        printf("Unrecognized argument : %c \n", flags[j][0]);
+                        break;
                 }
             }
         }

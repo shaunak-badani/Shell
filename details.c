@@ -3,8 +3,6 @@
 #include <fcntl.h> 
 // contains all the macros
 
-uid_t userId;
-
 struct stat st;
 
 /*
@@ -73,5 +71,23 @@ void initialize_details(){
 
 // Function to print the prompt in the format required
 void pretty_print() {
-    printf("<%s@%s:%s>", username, system_name, display_directory());
+
+    // username in green
+    printf("\033[0;32m");
+    printf("%s", username);
+
+    // @ in bold yellow
+    printf("\033[01;33m");
+    printf("@");
+
+    // system name in green
+    printf("\033[0;32m");
+    printf("%s:",system_name);
+
+    // directory in cyan
+    printf("\033[0;36m");
+    printf("%s ", display_directory());
+
+    //reset
+    printf("\033[0m");
 }

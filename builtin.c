@@ -1,7 +1,7 @@
 #include "details.h"
 
 /* Just some function declarations */
-char* join_dirs();
+char* join_dirs(char dir_array[][50], int len_of_array);
 char* display_directory();
 
 // function to handle printing of current working directory == pwd
@@ -28,9 +28,15 @@ void change_directory(char flags[][50], int size_of_flags) {
             char* current_dir = join_dirs(CWD, size_of_folder_dirs);
             chdir("..");
         }
+        else if(strcmp(flags[0], "~") == 0) {
+            for(int j = 0; j < home_dirs ; j++) {
+                strcpy(CWD[j], ENV_HOME[j]);
+            }
+            size_of_folder_dirs = home_dirs;
+            chdir(join_dirs(CWD, home_dirs));
+        }
         else {
             chdir(flags[0]);
-
             char* folder_name = strtok(flags[0], "/");
             while(folder_name != NULL){
                 if(strcmp(folder_name, "..") == 0) {

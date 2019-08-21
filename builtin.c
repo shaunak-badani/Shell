@@ -71,6 +71,8 @@ void change_directory(char flags[][50], int size_of_flags) {
 // joins the folder names in dir array passed to it and returns a string
 char* join_dirs(char dir_array[][50], int len_of_array) {
     char *current_dir = (char *)malloc(sizeof(char) * 500);
+
+    memset(current_dir, '\0', 500*sizeof(char));
     for(int i = 0 ; i < len_of_array ; i++) {
         strcat(current_dir, "/");
         strcat(current_dir, dir_array[i]);
@@ -106,4 +108,47 @@ char* display_directory() {
     else {
         return join_dirs(CWD, size_of_folder_dirs);
     }
+}
+
+// returns the path relative to the home directory
+char* display_directory_arr(char dir[][50], int size_of_dir) {
+    char* relative_path = (char*) malloc(sizeof(char) * 1000);
+    strcpy(relative_path, "~");
+    int loop_length = size_of_dir <= home_dirs ? size_of_dir : home_dirs;
+    // if equal, loop_length will be cwd size
+    int i;
+    for(i = 0; i < loop_length ; i++) {
+        if(strcmp(dir[i], ENV_HOME[i]) != 0) {
+            break;
+        }
+    }
+    if(size_of_dir >= home_dirs) {
+        if(i == loop_length) {
+            for( ; i < size_of_dir ; i++) {
+                strcat(relative_path, "/");
+                strcat(relative_path, dir[i]);
+            }
+            return relative_path;
+        }
+        else {
+            return join_dirs(dir, size_of_dir);
+        }
+    }
+    else {
+        return join_dirs(dir, size_of_dir);
+    }
+}
+
+// returns any path relative to the home path
+char* rel_path(char* path_string) {
+    char* folder_name = strtok(path_string, "/");
+    char folders_arr[30][50]; 
+    int i = 0;
+    while(folder_name != NULL){
+        if(folder_name != NULL) {
+            strcpy(folders_arr[i++], folder_name);
+        }
+        folder_name = strtok(NULL, "/");
+    }
+    return display_directory_arr(folders_arr, i);
 }

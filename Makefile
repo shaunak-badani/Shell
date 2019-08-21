@@ -1,4 +1,4 @@
-SOURCES = builtin.c  details.c  functions.c  main.c file_listing.c
+SOURCES = builtin.c  details.c  functions.c  main.c file_listing.c proc.c
 OBJECTS = $(SOURCES:.c=.o)
 TARGET = shell
 CC = gcc

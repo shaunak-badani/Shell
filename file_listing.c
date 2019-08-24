@@ -19,9 +19,15 @@ void list_flag_handler(char flags[][50], int size_of_flags) {
         return;
     }
     int mode = 0;
-    // printf("size of flags : %d\n", size_of_flags);
+    char* directory = (char*)malloc(sizeof(char) * 200);
+    strcpy(directory, ".");
     if(size_of_flags == 1) {
-        if(flags[0][0] == '-') {
+        if(strcmp(flags[0], "~") == 0) {
+            // ls ~
+            char* dir_home = join_dirs(ENV_HOME, home_dirs);
+            strcpy(directory, dir_home);
+        }
+        else if(flags[0][0] == '-') {
             int len = strlen(flags[0]);
             for(int i = 1; i < len ; i++) {
                 switch(flags[0][i]) {
@@ -45,9 +51,20 @@ void list_flag_handler(char flags[][50], int size_of_flags) {
     else if(size_of_flags > 1) {
         for(int i = 0; i < size_of_flags ; i++) {
             int len = strlen(flags[i]);
-            if(flags[i][0] != '-') {
-                printf("Please proceed your flags with -. Aborting\n");
-                return;
+            if(strcmp(flags[i], "~") == 0) {
+                // ls -[la] ~
+                char* dir_home = join_dirs(ENV_HOME, home_dirs);
+                strcpy(directory, dir_home);
+                continue;
+            }
+            else if(flags[i][0] != '-') {
+                if(strcmp(directory, ".") != 0) {
+                    printf("Please make sure your input does not contain more than one directory");
+                }
+                else {
+                    strcpy(directory, flags[i]);
+                    continue;
+                }
             } 
             for(int j = 1 ; j < len ; j++) {
                 switch(flags[i][j]) {
@@ -69,7 +86,7 @@ void list_flag_handler(char flags[][50], int size_of_flags) {
         return;
     }
     else {
-        list_files(mode, ".");
+        list_files(mode, directory);
         return;
     }
 }
@@ -93,9 +110,10 @@ void ls_short(char *directory, bool hidden_files) {
     return;
 }
 
-/* ls -l */
+/* ls long listing format */
 void ls_long(char* directory, bool hidden_files) {
     struct dirent *de;
+    char* abs_path_file = (char*)malloc(sizeof(char) * 1000);
     DIR *dr = opendir(directory);
     if(dr == NULL) {
         perror("Could not open directory");
@@ -105,8 +123,14 @@ void ls_long(char* directory, bool hidden_files) {
         // ignoring hidden files and folders
         if(!hidden_files && de->d_name[0] == '.') continue;
 
+        // fetching absolute path for all files 
+        strcpy(abs_path_file, directory);
+        strcat(abs_path_file, "/");
+        strcat(abs_path_file, de->d_name);
+        // end of fetching absolute paths
+
         struct stat st;
-        if(stat(de->d_name, &st) < 0) {
+        if(stat(abs_path_file, &st) < 0) {
             perror("There was an error fetching stats for current file / folder ");
             return;
         }
@@ -121,12 +145,15 @@ void ls_long(char* directory, bool hidden_files) {
         printf("%*d ", 3, (int)st.st_nlink);
 
         char* user_file = get_name((int)st.st_uid, true);
+        // user name of owner of file / directory
         printf("%-*s", 17, user_file);
         free(user_file);
         
+        // group name of owner of file / directory
         char* group_file = get_name((int)st.st_gid, false);
         printf("%-*s", 17, group_file); 
 
+        // size of file
         printf("%*d ", 7, (int)st.st_size);
 
         // last modified time
@@ -141,7 +168,7 @@ void ls_long(char* directory, bool hidden_files) {
 
         // name of folder
         if(type_char == 'd') printf("\033[0;34m");
-        printf("%*s\n", 20, de->d_name);
+        printf(" %s\n", de->d_name);
         printf("\033[0m");
     }
     closedir(dr);

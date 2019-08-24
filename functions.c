@@ -1,11 +1,103 @@
 #include "details.h"
 #include <fcntl.h> 
 #include <sys/stat.h>
+#include <sys/wait.h>
+#include <signal.h>
+
+#include <dirent.h>
+
 
 /*
     Set of functions that will be useful throughout
     the project.
 */
+
+void execute_command(char* main_comm, char flags[][50], int i, bool bg) {
+    // pwd
+    int pid = fork();
+    int rv;
+
+    if(pid == 0) {
+        if(strcmp(main_comm, "pwd") == 0) {
+            print_cwd();
+        }
+        else if(strcmp(main_comm, "ls") == 0) {
+            list_flag_handler(flags, i);
+        }
+        else if(strcmp(main_comm, "echo") == 0) {
+            echo_to_screen(flags, i);
+        }
+        else {
+            int valid_command = foreground_proc(main_comm,flags, i);
+            if(valid_command == -1) {
+                printf("This is incomprehensible. Please enter something I can understand!\n");
+            }
+        }
+        rv = 0;
+        kill(getpid(),  SIGCHLD);
+        exit(0);
+    }
+    else {
+        wait(NULL);
+        if(bg) {
+            printf("Process %s exited\n", main_comm);
+            if(rv == 0) {
+                printf("normally\n");
+            }
+            else {
+                printf("with error status = %d\n", rv);
+            }
+            pretty_print();
+        }
+    }
+}
+
+void fork_handler(char* main_comm, char flags[][50], bool run_in_background, int i) {
+
+    // if no command is passed return
+    if(!main_comm) {
+        return;
+    }
+    // not forking if command is cd
+    if(strcmp(main_comm, "cd") == 0) {
+        change_directory(flags, i);
+        return;
+    }
+    else if(strcmp(main_comm, "pinfo") == 0) {
+        proc_flags(flags, i);
+        return;
+    }
+    
+    int pid = fork();
+    if(pid == 0) {
+        execute_command(main_comm, flags, i, run_in_background);
+        kill(getpid(), SIGCHLD);
+        exit(0);
+    }
+    else {
+        if(!run_in_background){
+            int status = 0;
+            waitpid(pid, &status, 0);
+        }
+        fflush(stdout); 
+    }
+}
+
+void colon_separator(char* main_comm) {
+    char* single_comm = strtok(main_comm, ";");
+
+    char comms[50][50];
+    int k = 0;
+    while(single_comm != NULL) {
+        if(single_comm != NULL) {
+            strcpy(comms[k++], single_comm);   
+        }
+        single_comm = strtok(NULL, ";");
+    }
+    for(int i = 0 ; i < k ; i++) {
+        parse_command(comms[i]);
+    }
+}
 
 // fetches name corresponding to user / group
 char* get_name(int id, bool forUser) {
@@ -39,7 +131,6 @@ char* get_name(int id, bool forUser) {
 
     int j = 0;
     while(file_line != NULL) {
-        // printf("%s\n", file_lines[j]);
         if( file_line != NULL ) {
             strcpy(file_lines[j++], file_line);
         }
@@ -78,33 +169,22 @@ void parse_command(char *comm){
     char* main_comm = strtok(comm, " ");
     char *flag = main_comm;
 
+    bool run_in_background = false;
+
     char flags[50][50];
     int i = 0;
     while(flag != NULL) {
         flag = strtok(NULL, " ");
         if(flag != NULL) {
+            if(strcmp(flag, "&") == 0) {
+                run_in_background = true;
+                continue;
+            }
             strcpy(flags[i++], flag);
         }
     }
     // flags copied into the flags array
-    
-    // pwd
-    if(strcmp(main_comm, "pwd") == 0) {
-        print_cwd();
-    }
-    else if(strcmp(main_comm, "cd") == 0) {
-        change_directory(flags, i);
-    }
-    else if(strcmp(main_comm, "ls") == 0) {
-        list_flag_handler(flags, i);
-    }
-    else if(strcmp(main_comm, "echo") == 0) {
-        echo_to_screen(flags, i);
-    }
-    else if(strcmp(main_comm, "pinfo") == 0) {
-        proc_flags(flags, i);
-    }
-    else {
-        printf("Please enter a valid command.\n");
-    }
+
+    fork_handler(main_comm, flags,run_in_background, i);
+    // free(comm);
 }

@@ -1,4 +1,4 @@
-SOURCES = builtin.c  details.c  functions.c  main.c file_listing.c proc.c
+SOURCES = builtin.c  details.c  functions.c  main.c file_listing.c pinfo.c processes.c
 OBJECTS = $(SOURCES:.c=.o)
 TARGET = shell
 CC = gcc
@@ -8,7 +8,7 @@ CFLAGS += -g -O3 -march=native -Wno-unused-result
 all: build-shell
  
 build-shell: $(TARGET)
-
+	
 $(TARGET) : $(OBJECTS)
 	$(CC) $(OBJECTS) -o $(TARGET)
 

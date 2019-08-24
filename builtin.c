@@ -24,41 +24,43 @@ void echo_to_screen(char flags[][50], int size_of_flags) {
 
 void change_directory(char flags[][50], int size_of_flags) {
     char current_dir[PATH_MAX]; 
-    getcwd(current_dir, sizeof(current_dir));
     if(size_of_flags == 1) {
-        if(strcmp(flags[0], ".") == 0) {
-            chdir(".");
-            return;
-        }
-        else if(strcmp(flags[0], "..") == 0) {
-            strcpy(CWD[size_of_folder_dirs - 1], "\0");
-            size_of_folder_dirs--;
-            char* current_dir = join_dirs(CWD, size_of_folder_dirs);
-            chdir("..");
-        }
-        else if(strcmp(flags[0], "~") == 0) {
+        // handling ~ first
+        if(strcmp(flags[0], "~") == 0) {
             for(int j = 0; j < home_dirs ; j++) {
                 strcpy(CWD[j], ENV_HOME[j]);
             }
             size_of_folder_dirs = home_dirs;
             chdir(join_dirs(CWD, home_dirs));
+            return;
         }
-        else {
-            chdir(flags[0]);
-            char* folder_name = strtok(flags[0], "/");
-            while(folder_name != NULL){
-                if(strcmp(folder_name, "..") == 0) {
-                    strcpy(CWD[size_of_folder_dirs - 1], "\0");
-                    size_of_folder_dirs--;
-                }
-                else {
-                    strcpy(CWD[size_of_folder_dirs], folder_name);
-                    size_of_folder_dirs++;
-                }
-                folder_name = strtok(NULL, "/");
-            }
+        int rv = chdir(flags[0]);
+        if(rv == -1) {
+            perror("There was an error `cd`ing into the folder specified");
+            return;
+        }
+        if(strcmp(flags[0], ".") == 0) {
+            return;
+        }
+        if(strcmp(flags[0], "..") == 0) {
+            strcpy(CWD[size_of_folder_dirs - 1], "\0");
+            size_of_folder_dirs--;
             char* current_dir = join_dirs(CWD, size_of_folder_dirs);
+            return;
         }
+        char* folder_name = strtok(flags[0], "/");
+        while(folder_name != NULL){
+            if(strcmp(folder_name, "..") == 0) {
+                strcpy(CWD[size_of_folder_dirs - 1], "\0");
+                size_of_folder_dirs--;
+            }
+            else {
+                strcpy(CWD[size_of_folder_dirs], folder_name);
+                size_of_folder_dirs++;
+            }
+            folder_name = strtok(NULL, "/");
+        }
+        char* current_dir = join_dirs(CWD, size_of_folder_dirs);
     }
     else {
         printf("Please note that your folder name must escape spaces\n");
@@ -77,6 +79,7 @@ char* join_dirs(char dir_array[][50], int len_of_array) {
         strcat(current_dir, "/");
         strcat(current_dir, dir_array[i]);
     }
+    // current_dir[strlen(current_dir)] = '\0';
     return current_dir;
 }
 

@@ -12,6 +12,12 @@
     the project.
 */
 
+/* 
+There are three functions that the command passes through before finally 
+reaching the function that handles that particular command.
+parse_command -> fork_handler -> execute_command
+*/
+
 void execute_command(char* main_comm, char flags[][50], int i, bool bg) {
     // pwd
     int pid = fork();
@@ -188,3 +194,42 @@ void parse_command(char *comm){
     fork_handler(main_comm, flags,run_in_background, i);
     // free(comm);
 }
+
+// function to read last n lines from the file 
+void tail(FILE* in) 
+{ 
+    int n = 10;
+    int count = 0;  // To count '\n' characters 
+  
+    unsigned long long pos; 
+    char str[200]; 
+  
+    // Go to End of file 
+    if (fseek(in, 0, SEEK_END)) 
+        perror("fseek() failed"); 
+    else
+    { 
+        pos = ftell(in); 
+  
+        // search for '\n' characters 
+        while (pos) 
+        { 
+            // Move 'pos' away from end of file. 
+            if (!fseek(in, --pos, SEEK_SET)) 
+            { 
+                if (fgetc(in) == '\n') 
+  
+                    // stop reading when n newlines 
+                    // is found 
+                    if (count++ == n) 
+                        break; 
+            } 
+            else
+                perror("fseek() failed"); 
+        } 
+  
+        // print last n lines 
+        while (fgets(str, sizeof(str), in)) 
+            printf("%s\n", str); 
+    } 
+} 

@@ -1,0 +1,7 @@
+
+Shell Work To be done : 
+1. Handle `process with <pid> exited normally.` As of now, no error handling has been done, 
+and pid has not been stored.
+2. Start specification 2
+3. Free mallocs as much as possible to avoid segfault.
+4. Remove history command.

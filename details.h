@@ -28,6 +28,8 @@ void parse_command(char *gets);
 char* get_name(int id, bool forUser);
 char* rel_path(char* path_string);
 void colon_separator(char* main_comm);
+void add_history(char* comm);
+void tail(FILE* in);
 
 // functions for built in commands
 void print_cwd();
@@ -46,6 +48,9 @@ void proc_flags(char flags[][50], int size_of_flags);
 
 // background and foreground processes
 int foreground_proc(char* main_comm, char flags[][50], int size_of_flags);
+
+// history
+void show_history();
 
 char username[PATH_MAX];
 char system_name[PATH_MAX];

@@ -60,7 +60,6 @@ void proc_flags(char flags[][50], int size_of_flags) {
     else if(size_of_flags == 1) {
         int process_id;
         process_id = atoi(flags[0]);
-        printf("process id passed : %d\n", process_id);
         process_desc(process_id);
     }
 }

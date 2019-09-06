@@ -4,4 +4,6 @@ Shell Work To be done :
 and pid has not been stored.
 2. Start specification 2
 3. Free mallocs as much as possible to avoid segfault.
-4. Remove history command.
+4. Remove history command. [Done]
+5. For implemented commands don't run bg processes
+

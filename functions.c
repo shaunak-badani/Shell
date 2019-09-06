@@ -60,10 +60,6 @@ void execute_command(char* main_comm, char flags[][50], int i, bool bg) {
 
 void fork_handler(char* main_comm, char flags[][50], bool run_in_background, int i) {
 
-    // if no command is passed return
-    if(!main_comm) {
-        return;
-    }
     // not forking if command is cd
     if(strcmp(main_comm, "cd") == 0) {
         change_directory(flags, i);
@@ -190,6 +186,11 @@ void parse_command(char *comm){
         }
     }
     // flags copied into the flags array
+
+    // if no command is passed return
+    if(!main_comm) {
+        return;
+    }
 
     fork_handler(main_comm, flags,run_in_background, i);
     // free(comm);

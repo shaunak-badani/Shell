@@ -24,11 +24,11 @@ for better readability
 */
 
 void colon_separator(char* main_comm);
-void pipe_and_redirect_handler(char* comm);
 void parse_command(char *comm);
 void fork_handler(char* main_comm, char flags[][50], bool run_in_background, int i);
 void execute_command(char* main_comm, char flags[][50], int i, bool bg);
 char* get_name(int id, bool forUser);
+int delimit(char* string, char* delim, char delimited_string[][50]);
 
 
 void colon_separator(char* main_comm) {
@@ -43,14 +43,9 @@ void colon_separator(char* main_comm) {
         single_comm = strtok(NULL, ";");
     }
     for(int i = 0 ; i < k ; i++) {
-        pipe_and_redirect_handler(comms[i]);
+        parse_command(comms[i]);
     }
 }
-
-void pipe_and_redirect_handler(char* comm){
-    parse_command(comm);
-}
-
 
 /* Apart from parsing the command, this function also acts as middleware for 
    every command that is input into the shell
@@ -91,7 +86,51 @@ void parse_command(char *comm){
 
 void fork_handler(char* main_comm, char flags[][50], bool run_in_background, int i) {
 
+    bool output_red = false;
+    bool input_red = false;
+    int fd_input, fd_output;
+    int stdout_copy = dup(1);
+    int stdin_copy = dup(0);
+    int file_flag = O_TRUNC;
     // not forking if command is any one of the builtins
+    for(int j = 0 ; j < i ; j++) {
+
+        // output redirection
+        
+        if(strcmp(flags[j], "<") == 0) { input_red = true; }
+        else if(strcmp(flags[j], ">") == 0) { file_flag = O_TRUNC; output_red = true; }
+        else if(strcmp(flags[j], ">>") == 0) file_flag = O_APPEND;
+        else continue;
+        if(j + 1 >= i) {
+            printf("No filename specified\n");
+        }    
+        else {
+            if(output_red) {
+                close(1);
+                fd_output = open(flags[j + 1], O_WRONLY | O_CREAT | file_flag, 0644);
+                if(fd_output == -1) {
+                    perror("Failed to open file");
+                }
+                // closing stdout file descriptor
+
+                if(dup2(fd_output, 1) < 0) 
+                    perror("Duplication of file descriptor failed");
+            }
+            else {
+                close(0);   
+                fd_input = open(flags[j + 1], O_RDONLY);
+                if(fd_input == -1) {
+                    perror("Failed to open file");
+                }
+                // closing stdout file descriptor
+
+                if(dup2(fd_input, 0) < 0) 
+                    perror("Duplication of file descriptor failed");
+            }
+        }
+    }
+    if(output_red) i -= 2;
+    if(input_red) i -= 2;
     if(strcmp(main_comm, "cd") == 0) {
         change_directory(flags, i);
     }
@@ -122,6 +161,15 @@ void fork_handler(char* main_comm, char flags[][50], bool run_in_background, int
             fflush(stdout); 
         }
     }
+    if(output_red){
+        close(fd_output);
+        dup2(stdout_copy, 1);
+        fflush(stdout);
+    }
+    if(input_red){
+        close(fd_input);
+        dup2(stdin_copy, 0);
+    }
 }
 
 void execute_command(char* main_comm, char flags[][50], int i, bool bg) {
@@ -144,6 +192,7 @@ void execute_command(char* main_comm, char flags[][50], int i, bool bg) {
     else {
         wait(NULL);
         if(bg) {
+            pretty_print();
             printf("Process %s exited\n", main_comm);
             if(rv == 0) {
                 printf("normally\n");
@@ -151,9 +200,26 @@ void execute_command(char* main_comm, char flags[][50], int i, bool bg) {
             else {
                 printf("with error status = %d\n", rv);
             }
-            pretty_print();
         }
     }
+}
+
+// separates string based on delimiter
+// pass string, delimiter, and buffer object in which the delimited string
+// is to be put into
+int delimit(char* string, char* delim, char delimited_string[][50]) {
+
+    // limited to 50 chars per string and 50 strings
+
+    char* single_comm = strtok(string, delim);
+    int k = 0;
+    while(single_comm != NULL) {
+        if(single_comm != NULL) {
+            strcpy(delimited_string[k++], single_comm);   
+        }
+        single_comm = strtok(NULL, delim);
+    }
+    return k;
 }
 
 // fetches name corresponding to user / group

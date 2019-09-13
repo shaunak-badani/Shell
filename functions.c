@@ -24,6 +24,7 @@ for better readability
 */
 
 void colon_separator(char* main_comm);
+void pipe_and_redirect_handler(char* comm);
 void parse_command(char *comm);
 void fork_handler(char* main_comm, char flags[][50], bool run_in_background, int i);
 void execute_command(char* main_comm, char flags[][50], int i, bool bg);
@@ -42,8 +43,12 @@ void colon_separator(char* main_comm) {
         single_comm = strtok(NULL, ";");
     }
     for(int i = 0 ; i < k ; i++) {
-        parse_command(comms[i]);
+        pipe_and_redirect_handler(comms[i]);
     }
+}
+
+void pipe_and_redirect_handler(char* comm){
+    parse_command(comm);
 }
 
 
@@ -82,33 +87,40 @@ void parse_command(char *comm){
     }
 
     fork_handler(main_comm, flags,run_in_background, i);
-    // free(comm);
 }
 
 void fork_handler(char* main_comm, char flags[][50], bool run_in_background, int i) {
 
-    // not forking if command is cd
+    // not forking if command is any one of the builtins
     if(strcmp(main_comm, "cd") == 0) {
         change_directory(flags, i);
-        return;
     }
     else if(strcmp(main_comm, "pinfo") == 0) {
         proc_flags(flags, i);
-        return;
     }
-    
-    int pid = fork();
-    if(pid == 0) {
-        execute_command(main_comm, flags, i, run_in_background);
-        kill(getpid(), SIGCHLD);
-        exit(0);
+    else if(strcmp(main_comm, "pwd") == 0) {
+        print_cwd();
+    }
+    else if(strcmp(main_comm, "ls") == 0) {
+        list_flag_handler(flags, i);
+    }
+    else if(strcmp(main_comm, "echo") == 0) {
+        echo_to_screen(flags, i);
     }
     else {
-        if(!run_in_background){
-            int status = 0;
-            waitpid(pid, &status, 0);
+        int pid = fork();
+        if(pid == 0) {
+            execute_command(main_comm, flags, i, run_in_background);
+            kill(getpid(), SIGCHLD);
+            exit(0);
         }
-        fflush(stdout); 
+        else {
+            if(!run_in_background){
+                int status = 0;
+                waitpid(pid, &status, 0);
+            }
+            fflush(stdout); 
+        }
     }
 }
 
@@ -118,21 +130,13 @@ void execute_command(char* main_comm, char flags[][50], int i, bool bg) {
     int rv;
 
     if(pid == 0) {
-        if(strcmp(main_comm, "pwd") == 0) {
-            print_cwd();
-        }
-        else if(strcmp(main_comm, "ls") == 0) {
-            list_flag_handler(flags, i);
-        }
-        else if(strcmp(main_comm, "echo") == 0) {
-            echo_to_screen(flags, i);
-        }
-        else {
+        
+        // else {
             int valid_command = foreground_proc(main_comm,flags, i);
             if(valid_command == -1) {
                 printf("This is incomprehensible. Please enter something I can understand!\n");
             }
-        }
+        // }
         rv = 0;
         kill(getpid(),  SIGCHLD);
         exit(0);

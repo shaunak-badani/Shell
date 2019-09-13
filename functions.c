@@ -3,20 +3,114 @@
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include <signal.h>
-
 #include <dirent.h>
 
 
 /*
-    Set of functions that will be useful throughout
-    the project.
+Set of functions that will be useful throughout
+the project.
 */
 
 /* 
-There are three functions that the command passes through before finally 
+There are four functions that the command passes through before finally 
 reaching the function that handles that particular command.
-parse_command -> fork_handler -> execute_command
+colon_separator -> pipe_and_redirect_handler -> parse_command -> fork_handler
+and finally execute_command is called.
 */
+
+/*
+The functions in this file have been declared / written in the order that they have been called,
+for better readability
+*/
+
+void colon_separator(char* main_comm);
+void parse_command(char *comm);
+void fork_handler(char* main_comm, char flags[][50], bool run_in_background, int i);
+void execute_command(char* main_comm, char flags[][50], int i, bool bg);
+char* get_name(int id, bool forUser);
+
+
+void colon_separator(char* main_comm) {
+    char* single_comm = strtok(main_comm, ";");
+
+    char comms[50][50];
+    int k = 0;
+    while(single_comm != NULL) {
+        if(single_comm != NULL) {
+            strcpy(comms[k++], single_comm);   
+        }
+        single_comm = strtok(NULL, ";");
+    }
+    for(int i = 0 ; i < k ; i++) {
+        parse_command(comms[i]);
+    }
+}
+
+
+/* Apart from parsing the command, this function also acts as middleware for 
+   every command that is input into the shell
+*/
+void parse_command(char *comm){
+
+    // check for empty string
+    if(comm[0] == '\0') {
+        return;
+    }
+
+    char* main_comm = strtok(comm, " ");
+    char *flag = main_comm;
+
+    bool run_in_background = false;
+
+    char flags[50][50];
+    int i = 0;
+    while(flag != NULL) {
+        flag = strtok(NULL, "   ");
+        if(flag != NULL) {
+            if(strcmp(flag, "&") == 0) {
+                run_in_background = true;
+                continue;
+            }
+            strcpy(flags[i++], flag);
+        }
+    }
+    // flags copied into the flags array
+
+    // if no command is passed return
+    if(!main_comm) {
+        return;
+    }
+
+    fork_handler(main_comm, flags,run_in_background, i);
+    // free(comm);
+}
+
+void fork_handler(char* main_comm, char flags[][50], bool run_in_background, int i) {
+
+    // not forking if command is cd
+    if(strcmp(main_comm, "cd") == 0) {
+        change_directory(flags, i);
+        return;
+    }
+    else if(strcmp(main_comm, "pinfo") == 0) {
+        proc_flags(flags, i);
+        return;
+    }
+    
+    int pid = fork();
+    if(pid == 0) {
+        execute_command(main_comm, flags, i, run_in_background);
+        kill(getpid(), SIGCHLD);
+        exit(0);
+    }
+    else {
+        if(!run_in_background){
+            int status = 0;
+            waitpid(pid, &status, 0);
+        }
+        fflush(stdout); 
+    }
+}
 
 void execute_command(char* main_comm, char flags[][50], int i, bool bg) {
     // pwd
@@ -55,49 +149,6 @@ void execute_command(char* main_comm, char flags[][50], int i, bool bg) {
             }
             pretty_print();
         }
-    }
-}
-
-void fork_handler(char* main_comm, char flags[][50], bool run_in_background, int i) {
-
-    // not forking if command is cd
-    if(strcmp(main_comm, "cd") == 0) {
-        change_directory(flags, i);
-        return;
-    }
-    else if(strcmp(main_comm, "pinfo") == 0) {
-        proc_flags(flags, i);
-        return;
-    }
-    
-    int pid = fork();
-    if(pid == 0) {
-        execute_command(main_comm, flags, i, run_in_background);
-        kill(getpid(), SIGCHLD);
-        exit(0);
-    }
-    else {
-        if(!run_in_background){
-            int status = 0;
-            waitpid(pid, &status, 0);
-        }
-        fflush(stdout); 
-    }
-}
-
-void colon_separator(char* main_comm) {
-    char* single_comm = strtok(main_comm, ";");
-
-    char comms[50][50];
-    int k = 0;
-    while(single_comm != NULL) {
-        if(single_comm != NULL) {
-            strcpy(comms[k++], single_comm);   
-        }
-        single_comm = strtok(NULL, ";");
-    }
-    for(int i = 0 ; i < k ; i++) {
-        parse_command(comms[i]);
     }
 }
 
@@ -157,80 +208,3 @@ char* get_name(int id, bool forUser) {
     }
     return user;
 }
-
-/* Apart from parsing the command, this function also acts as middleware for 
-   every command that is input into the shell
-*/
-void parse_command(char *comm){
-
-    // check for empty string
-    if(comm[0] == '\0') {
-        return;
-    }
-
-    char* main_comm = strtok(comm, " ");
-    char *flag = main_comm;
-
-    bool run_in_background = false;
-
-    char flags[50][50];
-    int i = 0;
-    while(flag != NULL) {
-        flag = strtok(NULL, " ");
-        if(flag != NULL) {
-            if(strcmp(flag, "&") == 0) {
-                run_in_background = true;
-                continue;
-            }
-            strcpy(flags[i++], flag);
-        }
-    }
-    // flags copied into the flags array
-
-    // if no command is passed return
-    if(!main_comm) {
-        return;
-    }
-
-    fork_handler(main_comm, flags,run_in_background, i);
-    // free(comm);
-}
-
-// function to read last n lines from the file 
-void tail(FILE* in) 
-{ 
-    int n = 10;
-    int count = 0;  // To count '\n' characters 
-  
-    unsigned long long pos; 
-    char str[200]; 
-  
-    // Go to End of file 
-    if (fseek(in, 0, SEEK_END)) 
-        perror("fseek() failed"); 
-    else
-    { 
-        pos = ftell(in); 
-  
-        // search for '\n' characters 
-        while (pos) 
-        { 
-            // Move 'pos' away from end of file. 
-            if (!fseek(in, --pos, SEEK_SET)) 
-            { 
-                if (fgetc(in) == '\n') 
-  
-                    // stop reading when n newlines 
-                    // is found 
-                    if (count++ == n) 
-                        break; 
-            } 
-            else
-                perror("fseek() failed"); 
-        } 
-  
-        // print last n lines 
-        while (fgets(str, sizeof(str), in)) 
-            printf("%s\n", str); 
-    } 
-} 

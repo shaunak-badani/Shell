@@ -20,6 +20,8 @@ char* get_name(int id, bool forUser);
 
 // details.c requires this
 char* display_directory();
+char* display_directory_arr(char dir[][50], int size_of_dir);
+char* rel_path(char* path_string);
 
 
 //file listing

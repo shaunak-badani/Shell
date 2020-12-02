@@ -51,10 +51,10 @@ void list_flag_handler(char flags[][50], int size_of_flags) {
                 for(int j = 1 ; j < len ; j++) {
                         switch(flags[j][0]) {
                         case 'a':
-                            mode += 1;
+                            mode |= 1;
                             break;
                         case 'l':
-                            mode += 2;
+                            mode |= 2;
                             break;
                         default:
                             printf("Unrecognized argument : %c \n", flags[j][0]);

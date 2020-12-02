@@ -10,3 +10,4 @@
 void print_cwd();
 void change_directory(char flags[][50], int size_of_flags);
 char* join_dirs(char dir_array[][50], int len_of_array);
+void echo(char disp[][50], int l);

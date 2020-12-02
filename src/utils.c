@@ -2,6 +2,7 @@
 #include <fcntl.h> 
 #include <sys/stat.h>
 #include "utils.h"
+#include "builtin.h"
 
 /*
     Set of functions that will be useful throughout
@@ -95,5 +96,8 @@ void parse_command(char *comm){
     }
     else if(strcmp(main_comm, "ls") == 0) {
         list_flag_handler(flags, i);
+    }
+    else if(strcmp(main_comm, "echo") == 0) {
+        echo(flags, i);
     }
 }

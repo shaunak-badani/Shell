@@ -98,3 +98,13 @@ char* display_directory() {
         return join_dirs(CWD, size_of_folder_dirs);
     }
 }
+
+// echo command
+
+
+void echo(char disp[][50], int l) {
+    for(int i = 0 ; i < l ; i++) 
+        printf("%s ", disp[i]);
+    printf("\n");
+    return;
+}

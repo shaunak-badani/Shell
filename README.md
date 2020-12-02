@@ -1,10 +1,8 @@
 # Shell
 
-## About
-
 > This is a C implementation of the unix CLI (Command Line Interface).
 
-## Directory Structure :
+### Directory Structure :
 ```
 .
 ├── bin
@@ -19,14 +17,14 @@
     └── C code containing implementation
 ```
 
-## Compile and run shell
+### Compile and run shell
 
 ```
 make
 ./bin/shell
 ```
 
-## Debugging
+### Debugging
 
 ```
 make debug

@@ -4,18 +4,31 @@
 
 > This is a C implementation of the unix CLI (Command Line Interface).
 
-## How to run
+## Directory Structure :
+```
+.
+├── bin
+│   └── contains executables
+├── include
+│   └──  ontains all header files
+├── Makefile
+├── obj
+│   └── folder that stores all object files
+├── README.md
+└── src 
+    └── C code containing implementation
+```
 
-First time compilation :
+## Compile and run shell
+
 ```
 make
-./shell
+./bin/shell
 ```
 
-If attempting to re-run :
+## Debugging
 
 ```
-make clean
-make
-./shell
+make debug
+gdb ./bin/shell
 ```

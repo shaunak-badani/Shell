@@ -1,11 +1,17 @@
-#include "details.h"
+#include "main.h"
 #include <fcntl.h> 
 #include <sys/stat.h>
+#include "utils.h"
 
 /*
     Set of functions that will be useful throughout
     the project.
 */
+
+
+void remove_newline(char* command, int no_of_chars) {
+    command[no_of_chars - 1] = '\0';
+}
 
 // fetches name corresponding to user / group
 char* get_name(int id, bool forUser) {
@@ -45,8 +51,6 @@ char* get_name(int id, bool forUser) {
         }
         file_line = strtok(NULL, "\n");
     }
-    // strcpy(name, "ending abruptly testing\n");
-    // return name;
 
     char* user = (char*)malloc(sizeof(char) * 1000);
     char* temp = (char*)malloc(sizeof(char) * 1000);

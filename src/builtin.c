@@ -1,8 +1,7 @@
-#include "details.h"
+#include "builtin.h"
+#include "main.h"
 
 /* Just some function declarations */
-char* join_dirs(char dir_array[][50], int len_of_array);
-char* display_directory();
 
 // function to handle printing of current working directory == pwd
 void print_cwd() {

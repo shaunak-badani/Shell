@@ -1,6 +1,7 @@
-#include "details.h"
+#include "main.h"
 #include <sys/stat.h>
 #include <fcntl.h> 
+#include "prompt.h"
 // contains all the macros
 
 struct stat st;
@@ -27,13 +28,11 @@ void initialize_details(){
     }
 
     char* user = (char*)malloc(sizeof(char) * 1000);
-    char* temp = (char*)malloc(sizeof(char) * 1000);
     char* uid = (char*)malloc(sizeof(char) * 100);
-    int len = sizeof(file_lines) / sizeof(char);
     j--;
     for( ; j >= 0 ; j--) {
         user = strtok(file_lines[j],":");
-        temp = strtok(NULL,":");
+        strtok(NULL,":");
         uid = strtok(NULL, ":");
         if(atoi(uid) == userId) {
             strcpy(username, user);

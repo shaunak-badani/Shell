@@ -1,4 +1,4 @@
-#include "details.h"
+#include "main.h"
 #include <dirent.h>
 #include <sys/stat.h>
 // for all stat on files

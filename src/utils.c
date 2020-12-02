@@ -75,6 +75,9 @@ char* get_name(int id, bool forUser) {
    every command that is input into the shell
 */
 void parse_command(char *comm){
+    if(comm[0] == '\0')
+        return;
+
     char* main_comm = strtok(comm, " ");
     char *flag = main_comm;
 

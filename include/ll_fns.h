@@ -9,11 +9,11 @@ typedef struct proc_node{
     int pid;
     int status;
     struct proc_node* next;
-} proc;
+}proc;
 
 extern proc* head;
 
 void append_proc(proc* proc_new);
 void display_procs();
-proc* find_proc(pid_t pid);
+proc* find_proc(char* filter_value, int option);
 void remove_proc(proc* job);

@@ -1,4 +1,5 @@
 #include "ll_fns.h"
+#include "pinfo.h"
 
 void append_proc(proc* proc_new) {
     proc* cur = head;
@@ -13,12 +14,12 @@ void append_proc(proc* proc_new) {
 }
 
 void print_proc(proc* node) {
-    if(node->status > 0) {
-        printf("Running ");
-    }
-    else {
+    pinfo_proc* g = getpinfo(node->pid);
+    if(strcmp(g->status, "T") == 0) 
         printf("Stopped ");
-    }
+    else
+        printf("Running ");
+    free(g);
     printf("%s", node->name);
     printf(" [%d]", node->pid);
 }
@@ -34,11 +35,23 @@ void display_procs() {
     }
 }
 
-proc* find_proc(pid_t pid) {
+proc* find_proc(char* filter_value, int option) {
+
+    // option == 0 corresponds to name
+    // option == 1 corresponds to process id
+    // option == 2 corresponds to index
+
     proc* cur = head;
-    
+    if(option > 2 || option < 0)
+        return NULL;
+        
+    int i = 1;
     while(cur != NULL) {
-        if(cur->pid == (int)pid)
+        if(option == 0 && (strcmp(cur->name, filter_value) == 0))
+            break;
+        if(option == 1 && atoi(filter_value) == cur->pid)
+            break;
+        if(option == 2 && atoi(filter_value) == i)
             break;
         cur = cur->next;
     }

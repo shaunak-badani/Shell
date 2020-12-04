@@ -33,7 +33,7 @@ void handle_command(char* main_comm, char flags[][50], int size_of_flags) {
     
     int baby = fork();
     if(baby == 0) {
-        execvp(main_comm, args);    
+        execvp(main_comm, args);   
     }
     else {
         if(!bg)

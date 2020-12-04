@@ -112,6 +112,12 @@ void parse_command(char *comm){
     else if(strcmp(main_comm, "jobs") == 0) {
         jobs(flags, i);
     }
+    else if(strcmp(main_comm, "kjob") == 0) {
+        kjob(flags, i);
+    }
+    else if(strcmp(main_comm, "overkill") == 0) {
+        overkill(flags, i);
+    }
     else {
         handle_command(main_comm, flags, i);
     }

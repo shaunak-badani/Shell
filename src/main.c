@@ -1,6 +1,7 @@
 #include "main.h"
 #include "utils.h"
 #include "prompt.h"
+#include "signal_handlers.h"
 
 int main() {
     initialize_details();
@@ -8,6 +9,8 @@ int main() {
 
     size_t bufsize = 10000;
     char* command;
+    add_all_signal_handlers();
+
     int no_of_chars_read = getline(&command, &bufsize, stdin);
     remove_newline(command, no_of_chars_read);
 

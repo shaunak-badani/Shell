@@ -4,6 +4,7 @@
 #include "utils.h"
 #include "builtin.h"
 #include "pinfo.h"
+#include "system_comms.h"
 
 /*
     Set of functions that will be useful throughout
@@ -106,6 +107,9 @@ void parse_command(char *comm){
     }
     else if(strcmp(main_comm, "pinfo") == 0) {
         pinfo(flags, i);
+    }
+    else {
+        handle_command(main_comm, flags, i);
     }
 }
 

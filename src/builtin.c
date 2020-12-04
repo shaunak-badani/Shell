@@ -1,8 +1,6 @@
 #include "builtin.h"
 #include "main.h"
 
-/* Just some function declarations */
-
 // function to handle printing of current working directory == pwd
 void print_cwd() {
     char current_dir[PATH_MAX];
